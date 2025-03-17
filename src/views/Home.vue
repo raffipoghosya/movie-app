@@ -142,19 +142,19 @@ onUnmounted(() => {
 
     <div class="movies-grid">
       <div v-for="movie in movies" :key="movie.id" class="movie-card">
+        <!-- ✅ Այստեղ ավելացրու router-link -->
         <router-link :to="'/movie/' + movie.id" class="movie-link">
           <img v-if="movie.poster_path" :src="'https://image.tmdb.org/t/p/w500' + movie.poster_path" :alt="movie.title || 'No Title'" />
           <h3>{{ movie.title || 'Untitled' }}</h3>
         </router-link>
+
         <p>⭐ {{ movie.vote_average ?? 'N/A' }} | 📅 {{ movie.release_date ?? 'Unknown' }}</p>
         <p class="genres">🎭 {{ getMovieGenres(movie.genre_ids) }}</p>
       </div>
     </div>
-
-    <!-- 🔄 Բեռնման անիմացիա -->
-    <p v-if="isLoading" class="loading">Loading more movies...</p>
   </div>
 </template>
+
 
 <style scoped>
 .container {

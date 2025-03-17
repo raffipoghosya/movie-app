@@ -1,15 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../views/Home.vue';  // ✅ Փոխում ենք ուղին
-import MovieDetails from '../views/MovieDetails.vue'; // ✅ Փոխում ենք ուղին
+import Home from '../views/Home.vue'; // ✅ Պետք է լինի '../views/Home.vue'
+import MovieDetails from '../views/MovieDetails.vue'; // ✅ Պետք է լինի '../views/MovieDetails.vue'
 
 const routes = [
   { path: '/', component: Home },
-  { path: '/movie/:id', component: MovieDetails }
+  { path: '/movie/:id', component: MovieDetails }, // ✅ URL-ում ID-ն պետք է ճիշտ փոխանցվի
 ];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 });
 
 export default router;
