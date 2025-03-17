@@ -31,6 +31,8 @@ onMounted(fetchMovieDetails);
 
 // ✅ Եթե ID-ն փոխվում է, կրկին բեռնում ենք տվյալները
 watch(() => route.params.id, fetchMovieDetails);
+
+
 </script>
 
 <template>

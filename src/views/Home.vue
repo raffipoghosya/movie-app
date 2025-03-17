@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { getPopularMovies, searchMovies, getGenres, getMoviesByGenre } from '../services/movieService';
+import { getPopularMovies, searchMovies, getGenres, getMoviesByGenre, addToFavorites, removeFromFavorites } from '../services/movieService';
 
+// 🔥 Movie և Genre ինտերֆեյսներ
 interface Movie {
   id: number;
   title: string;
@@ -30,12 +31,27 @@ const loadGenres = async () => {
   genres.value = await getGenres();
 };
 
-// ✅ Ֆունկցիա՝ ֆիլմի ժանրերը ստանալու համար
+// ✅ Ստանում ենք ֆիլմի ժանրերի անունները
 const getMovieGenres = (genreIds: number[]) => {
   return genreIds
     .map((id) => genres.value.find((genre) => genre.id === id)?.name)
     .filter((name) => name)
     .join(', ');
+};
+
+// ✅ Ստուգում ենք, արդյոք ֆիլմը արդեն "հավանված" է
+const isFavorite = (movie: Movie) => {
+  const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+  return favorites.some((m: Movie) => m.id === movie.id);
+};
+
+// ✅ Ավելացնում կամ հեռացնում ենք "հավանել" ֆիլմերը
+const toggleFavorite = (movie: Movie) => {
+  if (isFavorite(movie)) {
+    removeFromFavorites(movie.id);
+  } else {
+    addToFavorites(movie);
+  }
 };
 
 // ✅ Բեռնում ենք ֆիլմերը (Infinite Scroll + Search + Genre)
@@ -48,7 +64,6 @@ const loadMovies = async (isNewSearch = false) => {
   if (isLoading.value || currentPage.value > totalPages.value) return;
 
   isLoading.value = true;
-
   let newMovies = [];
 
   if (searchQuery.value.length > 2) {
@@ -59,17 +74,13 @@ const loadMovies = async (isNewSearch = false) => {
   } else {
     try {
       const response = await getPopularMovies(currentPage.value);
-      console.log("🎬 API Response:", response); // ✅ Ստուգում API-ից ստացված տվյալները
-
       if (Array.isArray(response)) {
-        // 🔥 Եթե API-ն վերադարձնում է Array, ուղղակի վերցնում ենք այն
         newMovies = response;
-        totalPages.value = 10; // 🔥 Եթե total_pages չկա, դնում ենք 10 (կամ ցանկացած թիվ)
+        totalPages.value = 10; 
       } else if (response && response.results) {
         newMovies = response.results;
         totalPages.value = response.total_pages || 1;
       } else {
-        console.warn("⚠ API response is empty:", response);
         newMovies = [];
       }
     } catch (error) {
@@ -82,7 +93,6 @@ const loadMovies = async (isNewSearch = false) => {
   currentPage.value++;
   isLoading.value = false;
 };
-
 
 // ✅ Երբ որոնումը փոխվի, նորից բեռնել տվյալները (debounce 200ms)
 watch(searchQuery, async (newQuery) => {
@@ -100,17 +110,13 @@ watch(selectedGenre, async () => {
 
 // ✅ Անսահման սկրոլի event listener
 const handleScroll = () => {
-  console.log("📡 Scrolling..."); // ✅ Սա պետք է աշխատի, երբ շարժվում ես ներքև
-
   const bottomReached =
     window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
 
   if (bottomReached && !isLoading.value) {
-    console.log("🔽 Bottom reached, loading more movies...");
     loadMovies();
   }
 };
-
 
 // ✅ Ավելացնում ենք scroll event
 onMounted(async () => {
@@ -150,11 +156,15 @@ onUnmounted(() => {
 
         <p>⭐ {{ movie.vote_average ?? 'N/A' }} | 📅 {{ movie.release_date ?? 'Unknown' }}</p>
         <p class="genres">🎭 {{ getMovieGenres(movie.genre_ids) }}</p>
+
+        <!-- ✅ Հավանելու կոճակ -->
+        <button @click="toggleFavorite(movie)">
+          {{ isFavorite(movie) ? '⭐ Remove' : '⭐ Favorite' }}
+        </button>
       </div>
     </div>
   </div>
 </template>
-
 
 <style scoped>
 .container {
@@ -211,9 +221,17 @@ onUnmounted(() => {
   font-size: 14px;
 }
 
-.loading {
-  margin-top: 20px;
-  font-size: 18px;
-  color: #ffcc00;
+button {
+  background-color: #ffcc00;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+button:hover {
+  background-color: #e6b800;
 }
 </style>

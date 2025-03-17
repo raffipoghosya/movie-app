@@ -89,3 +89,35 @@ export const getMoviesByGenre = async (genreId: number, page = 1): Promise<Movie
     }
   });
 };
+
+// services/movieService.ts
+export const addToFavorites = (movie: Movie) => {
+    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    if (!favorites.some((m: Movie) => m.id === movie.id)) {
+      favorites.push(movie);
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+    }
+  };
+  
+  export const removeFromFavorites = (movieId: number) => {
+    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    favorites = favorites.filter((m: Movie) => m.id !== movieId);
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  };
+  
+  export const getFavorites = (): Movie[] => {
+    return JSON.parse(localStorage.getItem('favorites') || '[]');
+  };
+  // ✅ Ստանալ լավագույն վարկանիշ ունեցող ֆիլմերը
+export const getTopRatedMovies = async (page = 1): Promise<Movie[]> => {
+    try {
+      const response = await apiClient.get('/movie/top_rated', {
+        params: { page }
+      });
+      return response.data.results;
+    } catch (error) {
+      console.error('❌ Error fetching top-rated movies:', error);
+      return [];
+    }
+  };
+  
