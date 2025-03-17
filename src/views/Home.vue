@@ -135,10 +135,8 @@ onUnmounted(() => {
   <div class="container">
     <h1>Popular Movies</h1>
 
-    <!-- 🔍 Որոնման դաշտ -->
     <input v-model="searchQuery" placeholder="Search for movies..." class="search-input" />
 
-    <!-- 🎬 Ժանրերի ընտրացանկ -->
     <select v-model="selectedGenre" class="genre-select">
       <option :value="null">All Genres</option>
       <option v-for="genre in genres" :key="genre.id" :value="genre.id">
@@ -146,9 +144,9 @@ onUnmounted(() => {
       </option>
     </select>
 
-    <div class="movies-grid">
+    <!-- 🎬 **Ավելացնում ենք Transition Group** -->
+    <transition-group name="fade" tag="div" class="movies-grid">
       <div v-for="movie in movies" :key="movie.id" class="movie-card">
-        <!-- ✅ Այստեղ ավելացրու router-link -->
         <router-link :to="'/movie/' + movie.id" class="movie-link">
           <img v-if="movie.poster_path" :src="'https://image.tmdb.org/t/p/w500' + movie.poster_path" :alt="movie.title || 'No Title'" />
           <h3>{{ movie.title || 'Untitled' }}</h3>
@@ -156,15 +154,11 @@ onUnmounted(() => {
 
         <p>⭐ {{ movie.vote_average ?? 'N/A' }} | 📅 {{ movie.release_date ?? 'Unknown' }}</p>
         <p class="genres">🎭 {{ getMovieGenres(movie.genre_ids) }}</p>
-
-        <!-- ✅ Հավանելու կոճակ -->
-        <button @click="toggleFavorite(movie)">
-          {{ isFavorite(movie) ? '⭐ Remove' : '⭐ Favorite' }}
-        </button>
       </div>
-    </div>
+    </transition-group>
   </div>
 </template>
+
 
 <style scoped>
 .container {

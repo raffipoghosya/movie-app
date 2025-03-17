@@ -1,0 +1,41 @@
+/* ✅ Light / Dark Mode */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --bg-nav: #f0f0f0;
+  }
+  
+  .dark {
+    --bg-color: #121212;
+    --text-color: #ffffff;
+    --bg-nav: #222222;
+  }
+  
+  body {
+    background-color: var(--bg-color) !important;
+    color: var(--text-color) !important;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  /* 🎭 **Movie Fade-In Animation** */
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.5s;
+  }
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+  
+  /* 🖼 **Hover Effect for Movie Cards** */
+  .movie-card {
+    background: #222;
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  }
+  
+  .movie-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+  }
+  
