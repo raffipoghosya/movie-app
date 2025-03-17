@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { getPopularMovies, searchMovies, getGenres, getMoviesByGenre, addToFavorites, removeFromFavorites } from '../services/movieService';
+import { ref, watch, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import { getPopularMovies, searchMovies, getGenres, getMoviesByGenre } from "../services/movieService";
 
-// 🔥 Movie և Genre ինտերֆեյսներ
 interface Movie {
   id: number;
   title: string;
@@ -17,10 +17,11 @@ interface Genre {
   name: string;
 }
 
+const router = useRouter();
 const movies = ref<Movie[]>([]);
 const genres = ref<Genre[]>([]);
 const selectedGenre = ref<number | null>(null);
-const searchQuery = ref('');
+const searchQuery = ref("");
 const isSearching = ref(false);
 const isLoading = ref(false);
 const currentPage = ref(1);
@@ -31,27 +32,12 @@ const loadGenres = async () => {
   genres.value = await getGenres();
 };
 
-// ✅ Ստանում ենք ֆիլմի ժանրերի անունները
+// ✅ Ֆունկցիա՝ ֆիլմի ժանրերը ստանալու համար
 const getMovieGenres = (genreIds: number[]) => {
   return genreIds
     .map((id) => genres.value.find((genre) => genre.id === id)?.name)
     .filter((name) => name)
-    .join(', ');
-};
-
-// ✅ Ստուգում ենք, արդյոք ֆիլմը արդեն "հավանված" է
-const isFavorite = (movie: Movie) => {
-  const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-  return favorites.some((m: Movie) => m.id === movie.id);
-};
-
-// ✅ Ավելացնում կամ հեռացնում ենք "հավանել" ֆիլմերը
-const toggleFavorite = (movie: Movie) => {
-  if (isFavorite(movie)) {
-    removeFromFavorites(movie.id);
-  } else {
-    addToFavorites(movie);
-  }
+    .join(", ");
 };
 
 // ✅ Բեռնում ենք ֆիլմերը (Infinite Scroll + Search + Genre)
@@ -64,6 +50,7 @@ const loadMovies = async (isNewSearch = false) => {
   if (isLoading.value || currentPage.value > totalPages.value) return;
 
   isLoading.value = true;
+
   let newMovies = [];
 
   if (searchQuery.value.length > 2) {
@@ -74,13 +61,16 @@ const loadMovies = async (isNewSearch = false) => {
   } else {
     try {
       const response = await getPopularMovies(currentPage.value);
+      console.log("🎬 API Response:", response);
+
       if (Array.isArray(response)) {
         newMovies = response;
-        totalPages.value = 10; 
+        totalPages.value = 10;
       } else if (response && response.results) {
         newMovies = response.results;
         totalPages.value = response.total_pages || 1;
       } else {
+        console.warn("⚠ API response is empty:", response);
         newMovies = [];
       }
     } catch (error) {
@@ -92,6 +82,17 @@ const loadMovies = async (isNewSearch = false) => {
   movies.value = [...movies.value, ...newMovies];
   currentPage.value++;
   isLoading.value = false;
+};
+
+// ✅ Պատահական ֆիլմի ընտրության ֆունկցիա
+const pickRandomMovie = () => {
+  if (movies.value.length === 0) return;
+  const randomMovie = movies.value[Math.floor(Math.random() * movies.value.length)];
+  console.log("🎲 Random Movie:", randomMovie);
+
+  if (randomMovie) {
+    router.push(`/movie/${randomMovie.id}`);
+  }
 };
 
 // ✅ Երբ որոնումը փոխվի, նորից բեռնել տվյալները (debounce 200ms)
@@ -122,12 +123,12 @@ const handleScroll = () => {
 onMounted(async () => {
   await loadGenres();
   await loadMovies();
-  window.addEventListener('scroll', handleScroll);
+  window.addEventListener("scroll", handleScroll);
 });
 
 // ✅ Ջնջում ենք event listener-ը, երբ component-ը դուրս է գալիս
 onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
+  window.removeEventListener("scroll", handleScroll);
 });
 </script>
 
@@ -135,8 +136,10 @@ onUnmounted(() => {
   <div class="container">
     <h1>Popular Movies</h1>
 
+    <!-- 🔍 Որոնման դաշտ -->
     <input v-model="searchQuery" placeholder="Search for movies..." class="search-input" />
 
+    <!-- 🎬 Ժանրերի ընտրացանկ -->
     <select v-model="selectedGenre" class="genre-select">
       <option :value="null">All Genres</option>
       <option v-for="genre in genres" :key="genre.id" :value="genre.id">
@@ -144,7 +147,10 @@ onUnmounted(() => {
       </option>
     </select>
 
-    <!-- 🎬 **Ավելացնում ենք Transition Group** -->
+    <!-- 🎲 Պատահական ֆիլմի կոճակ -->
+    <button @click="pickRandomMovie" class="random-button">🎲 Pick a Random Movie</button>
+
+    <!-- 🎬 Transition Group for Smooth Animation -->
     <transition-group name="fade" tag="div" class="movies-grid">
       <div v-for="movie in movies" :key="movie.id" class="movie-card">
         <router-link :to="'/movie/' + movie.id" class="movie-link">
@@ -159,14 +165,14 @@ onUnmounted(() => {
   </div>
 </template>
 
-
 <style scoped>
 .container {
   text-align: center;
   padding: 20px;
 }
 
-.search-input, .genre-select {
+.search-input,
+.genre-select {
   width: 100%;
   max-width: 400px;
   padding: 10px;
@@ -177,6 +183,22 @@ onUnmounted(() => {
   background-color: #222;
   color: white;
   text-align: center;
+}
+
+/* 🎲 Պատահական ֆիլմի կոճակի ձևավորում */
+.random-button {
+  background-color: #ffcc00;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.random-button:hover {
+  background-color: #e6b800;
 }
 
 .movies-grid {
@@ -192,17 +214,6 @@ onUnmounted(() => {
   border-radius: 10px;
   color: white;
   text-align: center;
-  transition: transform 0.2s ease-in-out;
-}
-
-.movie-card:hover {
-  transform: scale(1.05);
-}
-
-.movie-link {
-  text-decoration: none;
-  color: inherit;
-  display: block;
 }
 
 .movie-card img {
@@ -210,22 +221,14 @@ onUnmounted(() => {
   border-radius: 5px;
 }
 
-.genres {
-  color: #ffcc00;
-  font-size: 14px;
+/* 🎬 Animation */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
 }
 
-button {
-  background-color: #ffcc00;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 14px;
-  cursor: pointer;
-  margin-top: 5px;
-}
-
-button:hover {
-  background-color: #e6b800;
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
