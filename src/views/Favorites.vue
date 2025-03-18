@@ -12,15 +12,15 @@ interface Movie {
 
 const favoriteMovies = ref<Movie[]>([]);
 
-// ✅ Բեռնում ենք ֆավորիտ ֆիլմերը localStorage-ից
+// loadFavorites localStorage
 const loadFavorites = () => {
   favoriteMovies.value = JSON.parse(localStorage.getItem('favorites') || '[]');
 };
 
-// ✅ Ջնջում ենք ֆիլմը ֆավորիտներից
+// removeFavorite
 const removeFavorite = (movieId: number) => {
   removeFromFavorites(movieId);
-  loadFavorites(); // Կրկին բեռնում ենք ֆավորիտների ցանկը
+  loadFavorites(); 
 };
 
 onMounted(() => {
@@ -41,7 +41,7 @@ onMounted(() => {
 
         <p>⭐ {{ movie.vote_average ?? 'N/A' }} | 📅 {{ movie.release_date ?? 'Unknown' }}</p>
 
-        <!-- ❌ Ջնջել ֆավորիտից -->
+        <!-- removeFavorite -->
         <button @click="removeFavorite(movie.id)">❌ Remove</button>
       </div>
     </div>

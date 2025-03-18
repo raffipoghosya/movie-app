@@ -3,17 +3,17 @@ import { ref, onMounted } from 'vue';
 
 const isDarkMode = ref(localStorage.getItem('theme') === 'dark');
 
-// ✅ Փոխում ենք ռեժիմը (Dark ↔ Light)
+// (Dark to Light)
 const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value;
   localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light');
 
-  console.log("🌙 Dark Mode is now:", isDarkMode.value); // ✅ Ստուգում ենք, որ ֆունկցիան կանչվում է
+  console.log("🌙 Dark Mode is now:", isDarkMode.value); //cheke func is get
   
   document.documentElement.classList.toggle('dark', isDarkMode.value);
 };
 
-// ✅ Սկզբում ստուգում ենք նախորդ theme-ը (localStorage)
+//  in start cheke prevus theme(localStorage)
 onMounted(() => {
   document.documentElement.classList.toggle('dark', isDarkMode.value);
 });
@@ -25,20 +25,20 @@ onMounted(() => {
     <router-link to="/favorites">⭐ Favorites</router-link>
     <router-link to="/top-rated">🎬 Top Rated</router-link>
 
-    <!-- 🌙 Dark Mode Toggle -->
+    <!-- Dark Mode Toggle -->
     <button @click="toggleDarkMode">
       {{ isDarkMode ? "☀ Light Mode" : "🌙 Dark Mode" }}
     </button>
   </nav>
 
-  <!-- 🎬 Ավելացնում ենք Page Transitions -->
+  <!--  add Page Transitions -->
   <transition name="page" mode="out-in">
     <router-view></router-view>
   </transition>
 </template>
 
 <style scoped>
-/* ✅ Navigation Bar */
+/*  Navigation Bar */
 nav {
   display: flex;
   justify-content: space-between;
@@ -60,7 +60,7 @@ nav a:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* ✅ Page Transition Animation */
+/*  Page Transition Animation */
 .page-enter-active, .page-leave-active {
   transition: opacity 0.5s ease-in-out;
 }
@@ -68,7 +68,7 @@ nav a:hover {
   opacity: 0;
 }
 
-/* ✅ Light / Dark Mode Styles */
+/*  Light / Dark Mode Styles */
 :root {
   --bg-color: #ffffff;
   --text-color: #000000;
@@ -88,7 +88,7 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
-/* 🌙 Dark Mode Toggle Button */
+/*  Dark Mode Toggle Button */
 button {
   background: none;
   border: none;

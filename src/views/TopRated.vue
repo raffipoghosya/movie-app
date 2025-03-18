@@ -12,7 +12,7 @@ interface Movie {
 
 const topMovies = ref<Movie[]>([]);
 
-// ✅ Բեռնում ենք լավագույն վարկանիշ ունեցող ֆիլմերը
+// loadTopRatedMovies
 const loadTopRatedMovies = async () => {
   topMovies.value = await getTopRatedMovies();
 };

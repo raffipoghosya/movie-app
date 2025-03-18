@@ -3,7 +3,7 @@ import { ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import apiClient from "../services/api";
 
-// ✅ Swiper-ի մասերը
+// Swiper
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -12,12 +12,12 @@ import { Navigation, Pagination } from "swiper/modules";
 
 const route = useRoute();
 const router = useRouter();
-const movie = ref<any>(null); // ✅ Պահպանում ենք ֆիլմի տվյալները
+const movie = ref<any>(null); // save film data
 
-// ✅ Ստուգում ենք, որ ID-ն ճիշտ է
-console.log("📌 Current Movie ID:", route.params.id);
+// ID ? true
+console.log("Current Movie ID:", route.params.id);
 
-// ✅ API հարցումը կատարելու ֆունկցիա
+//  API
 const fetchMovieDetails = async () => {
   console.log("🚀 Fetching movie details for ID:", route.params.id);
 
@@ -33,16 +33,16 @@ const fetchMovieDetails = async () => {
   }
 };
 
-// ✅ Բեռնում ենք ֆիլմի տվյալները, երբ էջը բացվում է
+//loade filme data
 onMounted(fetchMovieDetails);
 
-// ✅ Եթե ID-ն փոխվում է, կրկին բեռնում ենք տվյալները
+// if ID change => fetch new movie
 watch(() => route.params.id, fetchMovieDetails);
 </script>
 
 <template>
   <div v-if="movie" class="movie-details">
-    <button @click="router.back()" class="back-button">🔙 Back</button>
+    <button @click="router.back()" class="back-button">Back</button>
 
     <h2>{{ movie.title || "Unknown" }}</h2>
     <img
@@ -54,7 +54,7 @@ watch(() => route.params.id, fetchMovieDetails);
     <p>{{ movie.overview || "No description available." }}</p>
 
     <p v-if="movie.genres">
-      🎭 Genres: {{ movie.genres.map((g) => g.name).join(", ") }}
+       Genres: {{ movie.genres.map((g) => g.name).join(", ") }}
     </p>
     <p v-else>🎭 Genres: Unknown</p>
 
@@ -63,7 +63,7 @@ watch(() => route.params.id, fetchMovieDetails);
 
     <h2>🎥 Trailers</h2>
 
-    <!-- ✅ Swiper Carousel -->
+    <!--  Swiper Carousel   -->
     <swiper
       v-if="movie.videos?.results?.length"
       :modules="[Navigation, Pagination]"
@@ -100,7 +100,7 @@ watch(() => route.params.id, fetchMovieDetails);
 }
 
 .back-button {
-  background-color: #ffcc00;
+  background-color:   #ff4444;
   border: none;
   padding: 10px 20px;
   font-size: 16px;
@@ -114,7 +114,7 @@ watch(() => route.params.id, fetchMovieDetails);
   border-radius: 10px;
 }
 
-/* ✅ Swiper-ի դիզայն */
+/*  Swiper*/
 .trailer-carousel {
   width: 80%;
   margin: auto;

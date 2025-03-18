@@ -1,5 +1,29 @@
 # Vue 3 + TypeScript + Vite
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+# 🎬 Movie Explorer
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+**Movie Explorer** is a Vue.js-based web application that allows users to browse popular movies, search, filter by genre, add favorites, and watch trailers.
+
+## 🚀 Features
+✅ **Infinite scrolling** for loading more movies  
+✅ **Search functionality** to find movies quickly  
+✅ **Genre filtering** to refine movie results  
+✅ **Favorite movies** (saved in localStorage)  
+✅ **Movie trailers carousel** on the details page  
+✅ **Dark Mode (🌙/☀ Toggle)**  
+✅ **Random Movie Selector (🎲 Button)**  
+✅ **Unit Testing (Jest + Vue Test Utils)**  
+
+## 🛠️ Installation & Setup
+
+### 1. Install dependencies  
+```bash
+npm install
+npm run dev
+💡 The app will run at http://localhost:5173/
+
+The movie data is fetched from The Movie Database (TMDb) API.
+
+🤝 Contributing
+If you have suggestions or issues, feel free to open an Issue or submit a Pull Request.
+

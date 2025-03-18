@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import { getPopularMovies, searchMovies, getGenres, getMoviesByGenre } from "../services/movieService";
+import { getPopularMovies, searchMovies, getGenres, getMoviesByGenre, addToFavorites, removeFromFavorites } from "../services/movieService";
 
 interface Movie {
   id: number;
@@ -27,12 +27,12 @@ const isLoading = ref(false);
 const currentPage = ref(1);
 const totalPages = ref(1);
 
-// ✅ Բեռնում ենք ժանրերի ցանկը
+//  Load genres
 const loadGenres = async () => {
   genres.value = await getGenres();
 };
 
-// ✅ Ֆունկցիա՝ ֆիլմի ժանրերը ստանալու համար
+//  Get movie genres
 const getMovieGenres = (genreIds: number[]) => {
   return genreIds
     .map((id) => genres.value.find((genre) => genre.id === id)?.name)
@@ -40,7 +40,7 @@ const getMovieGenres = (genreIds: number[]) => {
     .join(", ");
 };
 
-// ✅ Բեռնում ենք ֆիլմերը (Infinite Scroll + Search + Genre)
+//  Load movies (Infinite Scroll + Search + Genre)
 const loadMovies = async (isNewSearch = false) => {
   if (isNewSearch) {
     movies.value = [];
@@ -50,7 +50,6 @@ const loadMovies = async (isNewSearch = false) => {
   if (isLoading.value || currentPage.value > totalPages.value) return;
 
   isLoading.value = true;
-
   let newMovies = [];
 
   if (searchQuery.value.length > 2) {
@@ -84,7 +83,7 @@ const loadMovies = async (isNewSearch = false) => {
   isLoading.value = false;
 };
 
-// ✅ Պատահական ֆիլմի ընտրության ֆունկցիա
+// Pick a random movie
 const pickRandomMovie = () => {
   if (movies.value.length === 0) return;
   const randomMovie = movies.value[Math.floor(Math.random() * movies.value.length)];
@@ -95,7 +94,23 @@ const pickRandomMovie = () => {
   }
 };
 
-// ✅ Երբ որոնումը փոխվի, նորից բեռնել տվյալները (debounce 200ms)
+//  Toggle favorite
+const toggleFavorite = (movie: Movie) => {
+  const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+  if (favorites.some((m: Movie) => m.id === movie.id)) {
+    removeFromFavorites(movie.id);
+  } else {
+    addToFavorites(movie);
+  }
+};
+
+//  Check if a movie is a favorite
+const isFavorite = (movie: Movie) => {
+  const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+  return favorites.some((m: Movie) => m.id === movie.id);
+};
+
+//  Watch for search input changes
 watch(searchQuery, async (newQuery) => {
   if (newQuery.length > 2 || newQuery.length === 0) {
     setTimeout(async () => {
@@ -104,12 +119,12 @@ watch(searchQuery, async (newQuery) => {
   }
 });
 
-// ✅ Երբ ընտրվում է նոր ժանր, նորից բեռնում ենք ֆիլմերը
+//  Watch for genre selection changes
 watch(selectedGenre, async () => {
   await loadMovies(true);
 });
 
-// ✅ Անսահման սկրոլի event listener
+//  Infinite scroll event listener
 const handleScroll = () => {
   const bottomReached =
     window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
@@ -119,14 +134,14 @@ const handleScroll = () => {
   }
 };
 
-// ✅ Ավելացնում ենք scroll event
+//  Add scroll event listener
 onMounted(async () => {
   await loadGenres();
   await loadMovies();
   window.addEventListener("scroll", handleScroll);
 });
 
-// ✅ Ջնջում ենք event listener-ը, երբ component-ը դուրս է գալիս
+// Remove event listener when component unmounts
 onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
 });
@@ -136,10 +151,10 @@ onUnmounted(() => {
   <div class="container">
     <h1>Popular Movies</h1>
 
-    <!-- 🔍 Որոնման դաշտ -->
+    <!--  Search input -->
     <input v-model="searchQuery" placeholder="Search for movies..." class="search-input" />
 
-    <!-- 🎬 Ժանրերի ընտրացանկ -->
+    <!-- Genre selection -->
     <select v-model="selectedGenre" class="genre-select">
       <option :value="null">All Genres</option>
       <option v-for="genre in genres" :key="genre.id" :value="genre.id">
@@ -147,10 +162,10 @@ onUnmounted(() => {
       </option>
     </select>
 
-    <!-- 🎲 Պատահական ֆիլմի կոճակ -->
-    <button @click="pickRandomMovie" class="random-button">🎲 Pick a Random Movie</button>
+    <!--  Random movie button -->
+    <button @click="pickRandomMovie" class="random-button">Random Movie</button>
 
-    <!-- 🎬 Transition Group for Smooth Animation -->
+    <!--  Transition Group for Smooth Animation -->
     <transition-group name="fade" tag="div" class="movies-grid">
       <div v-for="movie in movies" :key="movie.id" class="movie-card">
         <router-link :to="'/movie/' + movie.id" class="movie-link">
@@ -160,6 +175,11 @@ onUnmounted(() => {
 
         <p>⭐ {{ movie.vote_average ?? 'N/A' }} | 📅 {{ movie.release_date ?? 'Unknown' }}</p>
         <p class="genres">🎭 {{ getMovieGenres(movie.genre_ids) }}</p>
+
+        <!-- Favorite Button -->
+        <button @click="toggleFavorite(movie)" class="favorite-button">
+          {{ isFavorite(movie) ? "⭐ Remove" : "⭐ Favorite" }}
+        </button>
       </div>
     </transition-group>
   </div>
@@ -185,9 +205,9 @@ onUnmounted(() => {
   text-align: center;
 }
 
-/* 🎲 Պատահական ֆիլմի կոճակի ձևավորում */
+/*  Random Movie Button */
 .random-button {
-  background-color: #ffcc00;
+  background-color: #ff4444;
   border: none;
   padding: 10px 20px;
   font-size: 16px;
@@ -198,7 +218,23 @@ onUnmounted(() => {
 }
 
 .random-button:hover {
-  background-color: #e6b800;
+  background-color: #cc0000;
+}
+
+/*  Favorite Button */
+.favorite-button {
+  background-color: #ff4444;
+  border: none;
+  padding: 8px 15px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.favorite-button:hover {
+  background-color: #cc0000;
 }
 
 .movies-grid {
@@ -221,7 +257,7 @@ onUnmounted(() => {
   border-radius: 5px;
 }
 
-/* 🎬 Animation */
+/* Animation */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s;

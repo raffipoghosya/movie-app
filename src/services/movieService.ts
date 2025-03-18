@@ -14,11 +14,11 @@ export interface Genre {
   name: string;
 }
 
-// 🔥 Cache պահելու տևողությունը (5 րոպե)
+
 const CACHE_TIME = 5 * 60 * 1000;
 const cache = new Map<string, { data: any; timestamp: number }>();
 
-// ✅ Ֆունկցիա, որը ստուգում է cache-ը, եթե չկա՝ կանչում է API
+// cache-ը եթե չկա կանչում է API
 const fetchWithCache = async (key: string, fetchFunction: () => Promise<any>) => {
   const cachedData = cache.get(key);
 
@@ -34,7 +34,7 @@ const fetchWithCache = async (key: string, fetchFunction: () => Promise<any>) =>
   return data;
 };
 
-// ✅ Ստանալ հայտնի ֆիլմերը (cache + API)
+// PopularMovies(cache + API)
 export const getPopularMovies = async (page = 1): Promise<Movie[]> => {
   return fetchWithCache(`popular_movies_page_${page}`, async () => {
     try {
@@ -47,7 +47,7 @@ export const getPopularMovies = async (page = 1): Promise<Movie[]> => {
   });
 };
 
-// ✅ Ստանալ ֆիլմեր ըստ որոնման (cache + API)
+// searchMovies(cache + API)
 export const searchMovies = async (query: string): Promise<Movie[]> => {
   if (!query) return [];
   return fetchWithCache(`search_${query}`, async () => {
@@ -64,7 +64,7 @@ export const searchMovies = async (query: string): Promise<Movie[]> => {
   });
 };
 
-// ✅ Ստանալ ժանրերի ցանկը (cache + API)
+// getGenres (cache + API)
 export const getGenres = async (): Promise<Genre[]> => {
   return fetchWithCache('movie_genres', async () => {
     try {
@@ -77,7 +77,7 @@ export const getGenres = async (): Promise<Genre[]> => {
   });
 };
 
-// ✅ Ստանալ ֆիլմեր ըստ ժանրի (cache + API)
+// getMoviesByGenre (cache + API)
 export const getMoviesByGenre = async (genreId: number, page = 1): Promise<Movie[]> => {
   return fetchWithCache(`movies_by_genre_${genreId}_page_${page}`, async () => {
     try {
@@ -108,7 +108,7 @@ export const addToFavorites = (movie: Movie) => {
   export const getFavorites = (): Movie[] => {
     return JSON.parse(localStorage.getItem('favorites') || '[]');
   };
-  // ✅ Ստանալ լավագույն վարկանիշ ունեցող ֆիլմերը
+  // getTopRatedMovies
 export const getTopRatedMovies = async (page = 1): Promise<Movie[]> => {
     try {
       const response = await apiClient.get('/movie/top_rated', {

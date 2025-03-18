@@ -1,4 +1,4 @@
-/* ✅ Light / Dark Mode */
+/*  Light / Dark Mode */
 :root {
     --bg-color: #ffffff;
     --text-color: #000000;
@@ -16,7 +16,7 @@
     color: var(--text-color) !important;
     transition: background-color 0.3s, color 0.3s;
   }
-  /* 🎭 **Movie Fade-In Animation** */
+  /* Movie Fade-In */
 .fade-enter-active, .fade-leave-active {
     transition: opacity 0.5s;
   }
@@ -24,7 +24,7 @@
     opacity: 0;
   }
   
-  /* 🖼 **Hover Effect for Movie Cards** */
+  /* Hover Effect** */
   .movie-card {
     background: #222;
     padding: 10px;
